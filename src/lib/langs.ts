@@ -147,7 +147,7 @@ export const langs: Record<string, LangType & LangText & SystemConfig> = {
         btn: "Start",
         colour: "green",
         title: "Welcome to FB Hide Recommendations and Reels",
-        desc: "Let's get you started. Click the button below to configure the extension.",
+        desc: "Let's get you started. Click the button below to configure the extension. Developed by Mohsen Jamal.",
       },
       bannerHelloUpgrade: {
         link: "https://github.com/mohseenjamall/FB_Hidden",
@@ -156,7 +156,7 @@ export const langs: Record<string, LangType & LangText & SystemConfig> = {
         btn: "Start",
         colour: "green",
         title: "Welcome to FB Hide Recommendations and Reels",
-        desc: "Let's get you started. Click the button below to configure the extension.",
+        desc: "Let's get you started. Click the button below to configure the extension. Developed by Mohsen Jamal.",
         notif: {
           text: "You've got a new version",
           colour: "green",
