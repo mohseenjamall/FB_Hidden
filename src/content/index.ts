@@ -24,7 +24,7 @@ const consoleLog = {
   _addLog: (type: "log" | "warn" | "error", msg: string) => {
     if (consolelogs.length > 100) consolelogs.shift();
     consolelogs.push({ type, msg });
-    console[type](msg);
+    console[type](`[FBI] ${msg}`);
   },
   log: (msg: string) => {
     consoleLog._addLog("log", msg);
@@ -34,6 +34,9 @@ const consoleLog = {
   },
   error: (msg: string) => {
     consoleLog._addLog("error", msg);
+  },
+  debug: (msg: string) => {
+    if (DEBUG_MODE) console.debug(`[FBI DEBUG] ${msg}`);
   },
 };
 
@@ -64,7 +67,7 @@ const setLANG = (lang: string) => {
 
 const DEBUG_MODE =
   window.location.hostname ===
-    "chrome-facebook-hide-ads-and-reels.mrincops.net" &&
+  "chrome-facebook-hide-ads-and-reels.mrincops.net" &&
   window.location.pathname.indexOf("/diag/") === 0;
 
 if (DEBUG_MODE) consoleLog.warn("DEBUG MODE ENABLED");
@@ -128,10 +131,12 @@ const redactAddElem = (key: string, elemA: Element, config: any) => {
       }
       let itemTitle = elem.innerHTML;
       setText += ` (${decodeURIComponent(itemTitle)})`;
-    } catch (e) {}
+    } catch (e) { }
     elem.children[0].setAttribute("ctext", setText);
   }
 
+  // Click to show functionality disabled
+  /*
   if (config.clickToShow !== false) {
     elem.classList.add("can-show");
     elem.addEventListener("click", (e) => {
@@ -145,7 +150,121 @@ const redactAddElem = (key: string, elemA: Element, config: any) => {
       elem.classList.add("redact-elem-cover");
     });
   }
+  */
 };
+
+// ===== Helper Functions for Content Detection =====
+
+// Helper: Check if element is a Reels Block (dedicated section)
+const isReelsBlock = (elem: Element): boolean => {
+  // Articles are not Reels blocks - they are posts
+  if (elem.querySelector('[role="article"]')) {
+    return false;
+  }
+
+  // Look for Reels block header in h2, h3, h4 or span elements
+  const headers = elem.querySelectorAll('h3, h4, h2, span[dir="auto"]');
+  for (const header of headers) {
+    const text = (header.textContent || '').toLowerCase().trim();
+
+    // Check against language-specific Reels block strings
+    const reelsTexts = typeof parsedLang!.reelsBlock === 'string'
+      ? [parsedLang!.reelsBlock]
+      : parsedLang!.reelsBlock || [];
+
+    for (const reelText of reelsTexts) {
+      // Exact match or starts with the text (avoiding false positives)
+      if (text === reelText.toLowerCase() ||
+        text.startsWith(reelText.toLowerCase())) {
+        consoleLog.debug(`Found Reels block by header: "${text}"`);
+        return true;
+      }
+    }
+  }
+
+  return false;
+};
+
+// Helper: Check if article contains shared Reels
+const containsSharedReels = (elem: Element): boolean => {
+  // Must be an article
+  if (elem.getAttribute('role') !== 'article') {
+    return false;
+  }
+
+  // Check for Reels-specific data attributes and aria labels
+  const hasReelsIndicator =
+    elem.querySelector('[data-pagelet*="Reel"]') !== null ||
+    elem.querySelector('[data-pagelet*="reel"]') !== null ||
+    elem.querySelector('[aria-label*="Reel"]') !== null ||
+    elem.querySelector('[aria-label*="reel"]') !== null ||
+    elem.querySelector('[aria-label*="ريلز"]') !== null;
+
+  if (hasReelsIndicator) {
+    consoleLog.debug('Found shared Reels by data attributes');
+    return true;
+  }
+
+  // Check for video with Reels-specific class or structure
+  const videos = elem.querySelectorAll('video');
+  for (const video of videos) {
+    const parent = video.parentElement;
+    if (parent) {
+      const classes = parent.className || '';
+      const ariaLabel = parent.getAttribute('aria-label') || '';
+      if (classes.includes('reel') || classes.includes('Reel') ||
+        ariaLabel.includes('Reel') || ariaLabel.includes('ريلز')) {
+        consoleLog.debug('Found shared Reels by video element');
+        return true;
+      }
+    }
+  }
+
+  return false;
+};
+
+// Helper: Safe text search in specific elements only (headers/titles)
+const hasTextInHeaders = (elem: Element, searchTexts: string[]): boolean => {
+  const headers = elem.querySelectorAll('h3, h4, h2, span[dir="auto"]');
+  for (const header of headers) {
+    const text = (header.textContent || '').toLowerCase();
+    for (const searchText of searchTexts) {
+      if (text.includes(searchText.toLowerCase())) {
+        return true;
+      }
+    }
+  }
+  return false;
+};
+
+// Helper: Check for suggested content (groups, pages, events)
+const isSuggestedContent = (elem: Element): boolean => {
+  // Check headers and spans for suggested keywords
+  const headers = elem.querySelectorAll('h3, h4, h2, span[dir="auto"], span');
+
+  const suggestedTexts = typeof parsedLang!.suggested === 'string'
+    ? [parsedLang!.suggested]
+    : parsedLang!.suggested || [];
+
+  for (const header of headers) {
+    const text = (header.textContent || '').toLowerCase().trim();
+
+    for (const suggestedText of suggestedTexts) {
+      const searchText = suggestedText.toLowerCase();
+
+      // Check if text contains the suggested keyword
+      if (text.includes(searchText)) {
+        consoleLog.debug(`Found suggested content: "${text}"`);
+        return true;
+      }
+    }
+  }
+
+  return false;
+};
+
+
+
 
 let definedFeedHolder = false;
 const findFeedHolder = (lang: string) => {
@@ -159,6 +278,50 @@ const findFeedHolder = (lang: string) => {
   }
   setLANG(lang);
   consoleLog.warn("contentCleaner: findFeedHolder: lang: " + lang);
+
+  // Strategy 1: Try modern selectors first (more reliable)
+  let modernFeed: Element | null = null;
+
+  // Try role="main" selector
+  modernFeed = document.querySelector('[role="main"]');
+  if (modernFeed && modernFeed.querySelectorAll('[role="article"]').length > 0) {
+    consoleLog.log("contentCleaner: Found feed using role='main'");
+    definedFeedHolder = true;
+    modernFeed.classList.add("defined-feed-holder");
+    return modernFeed;
+  }
+
+  // Try data-pagelet with "Feed" or "Newsfeed"
+  modernFeed = document.querySelector('[data-pagelet*="Feed"]');
+  if (modernFeed) {
+    consoleLog.log("contentCleaner: Found feed using data-pagelet*='Feed'");
+    definedFeedHolder = true;
+    modernFeed.classList.add("defined-feed-holder");
+    return modernFeed;
+  }
+
+  // Try role="feed"
+  modernFeed = document.querySelector('[role="feed"]');
+  if (modernFeed) {
+    consoleLog.log("contentCleaner: Found feed using role='feed'");
+    definedFeedHolder = true;
+    modernFeed.classList.add("defined-feed-holder");
+    return modernFeed;
+  }
+
+  // Try finding container of articles
+  const articles = document.querySelectorAll('[role="article"]');
+  if (articles.length > 2) {
+    const parent = articles[0].parentElement;
+    if (parent) {
+      consoleLog.log("contentCleaner: Found feed as parent of articles");
+      definedFeedHolder = true;
+      parent.classList.add("defined-feed-holder");
+      return parent;
+    }
+  }
+
+  // Strategy 2: Fallback to legacy text matching
   for (let feedHeader of window.document.querySelectorAll('h3[dir="auto"]')) {
     for (let looper of typeof parsedLang!.newsFeedPosts! === "string"
       ? [parsedLang!.newsFeedPosts!]
@@ -254,6 +417,8 @@ let triedAllLangs = false;
 let triedTwice = false;
 let errorNotified = false;
 let ccDebounceTimer: NodeJS.Timeout | null = null;
+let observerDebounceTimer: NodeJS.Timeout | null = null;
+let feedObserver: MutationObserver | null = null;
 const contentCleaner = (
   key: string | undefined,
   isreRun = false,
@@ -319,8 +484,8 @@ const contentCleaner = (
       if (window.location.pathname !== "/" && !DEBUG_MODE) {
         consoleLog.log(
           "contentCleaner:v" +
-            storage.version +
-            " - paused as not on home page2"
+          storage.version +
+          " - paused as not on home page2"
         );
         definedFeedHolder = false;
         return;
@@ -407,46 +572,38 @@ const contentCleaner = (
         }
       }
       if (upContinue) continue;
-      for (let arrOfChecks of typeof parsedLang!.reelsBlock! === "string"
-        ? [parsedLang!.reelsBlock!]
-        : parsedLang!.reelsBlock!) {
-        if (
-          elem.innerHTML.toLowerCase().indexOf(arrOfChecks.toLowerCase()) >= 0
-        ) {
-          if (config.reels !== true) {
-            elem.classList.add("no-redact-elem");
-            elem.classList.add("no-reels-redact");
-            result.opsignored += 1;
-            upContinue = true;
-            continue;
-          }
-          redactAddElem("reelsBlock", elem, config);
-          elem.classList.add("redact-elem-reels");
-          result.redacted.reels += 1;
+
+      // Check for Reels Block (dedicated section) using helper function
+      if (isReelsBlock(elem)) {
+        if (config.reels !== true) {
+          elem.classList.add("no-redact-elem");
+          elem.classList.add("no-reels-redact");
+          result.opsignored += 1;
           upContinue = true;
           continue;
         }
+        redactAddElem("reelsBlock", elem, config);
+        elem.classList.add("redact-elem-reels");
+        result.redacted.reels += 1;
+        upContinue = true;
+        continue;
       }
       if (upContinue) continue;
-      for (let arrOfChecks of typeof parsedLang!.containsReels! === "string"
-        ? [parsedLang!.containsReels!]
-        : parsedLang!.containsReels!) {
-        if (
-          elem.innerHTML.toLowerCase().indexOf(arrOfChecks.toLowerCase()) >= 0
-        ) {
-          if (config.containsReels !== true) {
-            elem.classList.add("no-redact-elem");
-            elem.classList.add("no-reels-redact");
-            result.opsignored += 1;
-            upContinue = true;
-            continue;
-          }
-          redactAddElem("containsReels", elem, config);
-          elem.classList.add("redact-elem-reels");
-          result.redacted.reels += 1;
+
+      // Check for shared Reels in articles using helper function
+      if (containsSharedReels(elem)) {
+        if (config.containsReels !== true) {
+          elem.classList.add("no-redact-elem");
+          elem.classList.add("no-reels-redact");
+          result.opsignored += 1;
           upContinue = true;
           continue;
         }
+        redactAddElem("containsReels", elem, config);
+        elem.classList.add("redact-elem-reels");
+        result.redacted.reels += 1;
+        upContinue = true;
+        continue;
       }
       if (upContinue) continue;
       for (let arrOfChecks of typeof parsedLang!.commentedOn! === "string"
@@ -603,32 +760,25 @@ const contentCleaner = (
         result.redacted.ads += 1;
         continue;
       }
-      for (let arrOfChecks of typeof parsedLang!.suggested! === "string"
-        ? [parsedLang!.suggested!]
-        : parsedLang!.suggested!) {
-        if (
-          elem.innerHTML
-            .toLowerCase()
-            .indexOf(">" + arrOfChecks.toLowerCase() + "<") >= 0
-        ) {
-          if (config.suggestions !== true) {
-            elem.classList.add("no-redact-elem");
-            elem.classList.add("no-suggestions-redact");
-            result.opsignored += 1;
-            upContinue = true;
-            continue;
-          }
-          redactAddElem("suggested", elem, config);
-          elem.classList.add("redact-elem-suggestions");
-          result.redacted.suggestions += 1;
+
+      // Check for suggested content (groups, pages, events) using helper function
+      if (isSuggestedContent(elem)) {
+        if (config.suggestions !== true) {
+          elem.classList.add("no-redact-elem");
+          elem.classList.add("no-suggestions-redact");
+          result.opsignored += 1;
           upContinue = true;
           continue;
         }
+        redactAddElem("suggested", elem, config);
+        elem.classList.add("redact-elem-suggestions");
+        result.redacted.suggestions += 1;
+        upContinue = true;
+        continue;
       }
       if (upContinue) continue;
-      let contentCounter: string | number = `${
-        elem.getAttribute("ccount") || ""
-      }`;
+      let contentCounter: string | number = `${elem.getAttribute("ccount") || ""
+        }`;
       if (contentCounter == "") contentCounter = "0";
       contentCounter = Number.parseInt(contentCounter);
       contentCounter++;
@@ -646,16 +796,14 @@ const contentCleaner = (
       result.alreadyRedacted;
     consoleLog.log(
       `contentCleaner: ` +
-        `[opsIgnored: ${result.opsignored}/${result.total}] ` +
-        `[alreadyRedacted: ${result.alreadyRedacted}/${result.total}] ` +
-        `[ignored: ${result.ignored}/${result.total}] ` +
-        `[monitoring: ${result.monitoring}/${result.total}] ` +
-        `[redacted(reels,ads,suggestions,commentedOn,answeredQuestion,peopleMayKnow): ${result.redacted.reels},${result.redacted.ads},${result.redacted.suggestions},${result.redacted.commentedOn},${result.redacted.answeredQuestion},${result.redacted.peopleMayKnow}/${result.total}] ` +
-        `[cleaned(redacted,ignored,monitoring): ${result.redacted.total},${
-          result.ignored
-        },${result.monitoring}=${
-          result.redacted.total + result.ignored + result.monitoring
-        }/${result.total}] `
+      `[opsIgnored: ${result.opsignored}/${result.total}] ` +
+      `[alreadyRedacted: ${result.alreadyRedacted}/${result.total}] ` +
+      `[ignored: ${result.ignored}/${result.total}] ` +
+      `[monitoring: ${result.monitoring}/${result.total}] ` +
+      `[redacted(reels,ads,suggestions,commentedOn,answeredQuestion,peopleMayKnow): ${result.redacted.reels},${result.redacted.ads},${result.redacted.suggestions},${result.redacted.commentedOn},${result.redacted.answeredQuestion},${result.redacted.peopleMayKnow}/${result.total}] ` +
+      `[cleaned(redacted,ignored,monitoring): ${result.redacted.total},${result.ignored
+      },${result.monitoring}=${result.redacted.total + result.ignored + result.monitoring
+      }/${result.total}] `
     );
 
     if (ccDebounceTimer !== null) clearTimeout(ccDebounceTimer);
@@ -746,8 +894,8 @@ const runApp = async () => {
     if (config.version !== storage.version && !DEBUG_MODE) {
       await Popup.initWebStartHome(
         config.version !== undefined &&
-          config.version !== null &&
-          config.version !== ""
+        config.version !== null &&
+        config.version !== ""
       );
       return;
     }
@@ -758,48 +906,89 @@ const runApp = async () => {
       );
       await new Promise((resolve) => setTimeout(resolve, 5000));
     }
+    // Reduced timer interval - MutationObserver handles most changes
     let contentClearTimer = setInterval(
-      () => contentCleaner("timer", false, config),
-      60000
+      () => contentCleaner("timer-backup", false, config),
+      300000  // 5 minutes instead of 1 minute
     );
 
-    let lastAction = 0;
-    let debounceTimer: NodeJS.Timeout | null = null;
-    document.addEventListener("scroll", function (e) {
-      let now = new Date().getTime();
+    // MutationObserver for efficient DOM watching
+    const setupFeedObserver = () => {
+      if (feedObserver) {
+        feedObserver.disconnect();
+      }
 
-      if (now - lastAction > 1000) {
-        clearTimeout(debounceTimer!);
-        contentCleaner("force", false, config);
-        lastAction = now;
+      const feed = document.querySelector('.defined-feed-holder');
+      if (!feed) {
+        consoleLog.warn("Feed holder not found for MutationObserver");
         return;
       }
-      if (now - lastAction > 250) {
-        clearTimeout(debounceTimer!);
-        //let lastActionKey = `${lastAction}`;
-        debounceTimer = setTimeout(() => {
-          //if (`${lastAction}` != lastActionKey) return;
-          contentCleaner("scroll", false, config);
-          lastAction = now;
-        }, 500);
+
+      feedObserver = new MutationObserver((mutations) => {
+        if (window.pausecc === true) return;
+
+        let hasNewContent = false;
+
+        for (const mutation of mutations) {
+          if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+            for (const node of mutation.addedNodes) {
+              if (node instanceof HTMLElement) {
+                if (node.matches('[role="article"]') ||
+                  node.querySelector('[role="article"]')) {
+                  hasNewContent = true;
+                  break;
+                }
+              }
+            }
+          }
+          if (hasNewContent) break;
+        }
+
+        if (hasNewContent) {
+          if (observerDebounceTimer) clearTimeout(observerDebounceTimer);
+          observerDebounceTimer = setTimeout(() => {
+            contentCleaner("mutation-observer", false, config);
+          }, 250);
+        }
+      });
+
+      try {
+        feedObserver.observe(feed, {
+          childList: true,
+          subtree: true
+        });
+        consoleLog.log("MutationObserver attached to feed");
+      } catch (err: any) {
+        consoleLog.error("Failed to attach observer: " + (err.message ?? err.toString()));
       }
-    });
+    };
+
+    // Setup observer after initial content cleaning
+    setTimeout(() => setupFeedObserver(), 1000);
 
     window.addEventListener("blur", () => {
       contentCleaner("blur", false, config);
+      if (feedObserver) feedObserver.disconnect();
       clearInterval(contentClearTimer);
       contentClearTimer = setInterval(
-        () => contentCleaner("timer", false, config),
-        60000
+        () => contentCleaner("timer-backup", false, config),
+        300000
       );
     });
     window.addEventListener("focus", () => {
       contentCleaner("focus", false, config);
+      setupFeedObserver(); // Reconnect observer
       clearInterval(contentClearTimer);
       contentClearTimer = setInterval(
-        () => contentCleaner("timer", false, config),
-        10000
+        () => contentCleaner("timer-backup", false, config),
+        300000
       );
+    });
+
+    // Cleanup on page unload
+    window.addEventListener("beforeunload", () => {
+      if (feedObserver) feedObserver.disconnect();
+      clearInterval(contentClearTimer);
     });
 
     storage
@@ -813,7 +1002,7 @@ const runApp = async () => {
 
     console.warn(
       "FB Hide Recommendations and Reels: Loaded content script - v" +
-        storage.version
+      storage.version
     );
 
     /*if (config.fullPageLoader === false) {
