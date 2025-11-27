@@ -63,7 +63,7 @@ export interface SystemConfigSystemHeader {
   link: string;
   linkMsg: string;
 }
-export interface SystemConfigSystemCss {}
+export interface SystemConfigSystemCss { }
 export interface SystemConfigSystemPopup {
   css?: SystemConfigSystemCss;
   header?: SystemConfigSystemHeader;
@@ -79,7 +79,7 @@ export interface SystemConfigSystemPopup {
     img: string;
   };
 }
-export interface SystemConfigSystem extends SystemConfigSystemPopup {}
+export interface SystemConfigSystem extends SystemConfigSystemPopup { }
 export interface SystemConfig {
   _system?: SystemConfigSystem;
 }
@@ -122,26 +122,26 @@ export const langs: Record<string, LangType & LangText & SystemConfig> = {
     _system: {
       css: {},
       donate: {
-        url: "https://liberapay.com/mitchellr/donate",
-        imgAlt: "Donate using Liberapay",
+        url: "https://liberapay.com/mohseenjamall/donate",
+        imgAlt: "Support on Liberapay",
         img: "https://liberapay.com/assets/widgets/donate.svg",
       },
       header: {
         msg: "Something not working?",
-        link: "https://github.com/mrinc/Facebook-Hide-Recommendations-and-Reels/issues/new",
+        link: "https://github.com/mohseenjamall/FB_Hidden/issues/new",
         linkMsg: "Log an issue",
       },
       banner: {
-        link: "https://github.com/mrinc/Facebook-Hide-Recommendations-and-Reels",
+        link: "https://github.com/mohseenjamall/FB_Hidden",
         linkMsg: "Learn more",
         showLangs: true,
         btn: "Configure",
         colour: "indigo",
         title: "FB Hide Recommendations and Reels",
-        desc: "This extension cleans your feed of irrelevant content.",
+        desc: "This extension cleans your feed of irrelevant content. Developed by Mohsen Jamal.",
       },
       bannerHello: {
-        link: "https://github.com/mrinc/Facebook-Hide-Recommendations-and-Reels",
+        link: "https://github.com/mohseenjamall/FB_Hidden",
         linkMsg: "Learn more",
         showLangs: true,
         btn: "Start",
@@ -150,7 +150,7 @@ export const langs: Record<string, LangType & LangText & SystemConfig> = {
         desc: "Let's get you started. Click the button below to configure the extension.",
       },
       bannerHelloUpgrade: {
-        link: "https://github.com/mrinc/Facebook-Hide-Recommendations-and-Reels",
+        link: "https://github.com/mohseenjamall/FB_Hidden",
         linkMsg: "Learn more",
         showLangs: true,
         btn: "Start",

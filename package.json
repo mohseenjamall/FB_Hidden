@@ -11,15 +11,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mrinc/Facebook-Hide-Recommendations-and-Reels.git"
+    "url": "git+https://github.com/mohseenjamall/FB_Hidden.git"
   },
   "keywords": [],
-  "author": "",
+  "author": "Mohsen Jamal",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/mrinc/Facebook-Hide-Recommendations-and-Reels/issues"
+    "url": "https://github.com/mohseenjamall/FB_Hidden/issues"
   },
-  "homepage": "https://github.com/mrinc/Facebook-Hide-Recommendations-and-Reels#readme",
+  "homepage": "https://github.com/mohseenjamall/FB_Hidden#readme",
   "dependencies": {
     "@types/webextension-polyfill": "^0.10.0"
   },

@@ -21,26 +21,26 @@ export class Notif {
     ) {
       if (
         (langs as any)[
-          window.localStorage.getItem("fbhrar_locale") ??
-            document.documentElement.lang
+        window.localStorage.getItem("fbhrar_locale") ??
+        document.documentElement.lang
         ] !== undefined &&
         (langs as any)[
           window.localStorage.getItem("fbhrar_locale") ??
-            document.documentElement.lang
+          document.documentElement.lang
         ]._system !== undefined
       ) {
         for (let key of Object.keys(langs.en._system!)) {
           if (
             (langs as any)[
               window.localStorage.getItem("fbhrar_locale") ??
-                document.documentElement.lang
+              document.documentElement.lang
             ]._system[key] !== undefined
           ) {
             (sysConfig as any)[key] = JSON.parse(
               JSON.stringify(
                 (langs as any)[
                   window.localStorage.getItem("fbhrar_locale") ??
-                    document.documentElement.lang
+                  document.documentElement.lang
                 ]._system[key]
               )
             );
@@ -54,7 +54,14 @@ export class Notif {
     await storage.setup();
     if (layoutpart === "css") {
       let output =
-        ".tag { display: inline-block; font-size: 0.775rem; line-height: 0.7rem; margin-left: 10px; }";
+        ".tag { display: inline-block; font-size: 0.775rem; line-height: 0.7rem; margin-left: 10px; }" +
+        ".switch { position: relative; display: inline-block; width: 40px; height: 24px; margin-right: 10px; }" +
+        ".switch input { opacity: 0; width: 0; height: 0; }" +
+        ".slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }" +
+        ".slider:before { position: absolute; content: ''; height: 16px; width: 16px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }" +
+        "input:checked + .slider { background-color: #4f46e5; }" +
+        "input:focus + .slider { box-shadow: 0 0 1px #4f46e5; }" +
+        "input:checked + .slider:before { transform: translateX(16px); }";
       let colours: Record<string, Record<string, string>> = {
         gray: {
           "50": "249 250 251",
@@ -136,10 +143,10 @@ export class Notif {
         `</div></div>` +
         `<div class="flex flex-wrap items-center gap-x-4 gap-y-2 w-full justify-center">` +
         `<p class="text-sm leading-6 text-gray-900" style="display: inline-flex;">` +
-        `<span style="margin-left: 10px; background: transparent;" `+
+        `<span style="margin-left: 10px; background: transparent;" ` +
         ` class="flex-none rounded-full px-3.5 py-1 text-sm font-semibold text-gray-900">` +
-        `v<strong class="font-semibold"><span class="app_version">${storage.version}</span></strong>`+
-        `</span>`+
+        `v<strong class="font-semibold"><span class="app_version">${storage.version}</span></strong>` +
+        `</span>` +
         //`<strong class="font-semibold">v<span class="app_version">${storage.version}</span></strong>`+
         //`<svg viewBox="0 0 2 2" class="mx-2 inline h-0.5 w-0.5 fill-current" aria-hidden="true">` +
         //`<circle cx="1" cy="1" r="1" /></svg>${meta.msg}</p>` +
@@ -147,13 +154,13 @@ export class Notif {
 
         `<a style="margin-left: 10px; background: #f6c915;" target="_blank" href="${meta.donate.url}"` +
         ` class="flex-none rounded-full px-3.5 py-1 text-sm font-semibold text-gray-900 shadow-sm hover:bg-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900">` +
-        `Donate/Sponsor`+
+        `Donate/Sponsor` +
         //`<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg"><path fill="#FFF" d="M32.73 56.2651c-2.5867 0-4.6175-.3376-6.0925-1.0107s-2.5308-1.5936-3.1708-2.7611-.9458-2.4933-.9275-4.015.2267-3.1234.6284-4.8357l6.9391-29.0143 8.47-1.3108-7.595 31.4733c-.1458.655-.2275 1.2567-.2458 1.8025s.0817 1.0292.3 1.4475.5917.7566 1.12 1.0108 1.2658.42 2.2133.4925zM40.5333 28.0209c1.46-.4367 3.1267-.8284 5.0025-1.175s3.9075-.5183 6.0933-.5183 3.7985.3092 5.2726.9283 2.6864 1.4667 3.6341 2.5409 1.6475 2.3316 2.1024 3.77.6832 2.9783.6832 4.6183c0 2.6583-.4373 5.09-1.3214 7.2942s-2.076 4.1075-3.6237 5.71-3.4059 2.851-5.5763 3.7475-4.5235 1.3344-7.0718 1.3344c-1.2391 0-2.4775-.1104-3.7158-.3296l-2.4592 9.8912h-8.0865zM43.4867 49.3867c.6192.1458 1.3842.2133 2.295.2133 1.42 0 2.7133-.2583 3.8792-.7875s2.1583-1.265 2.9783-2.2125 1.4557-2.0842 1.9117-3.415.6827-2.795.6827-4.3983-.3467-2.8958-1.0379-3.9892-1.894-1.6391-3.6057-1.6391c-1.1667 0-2.2592.1092-3.2792.3283z"/></svg>`
         `</a>` +
-        
+
         `<a style="margin-left: 10px;" target="_blank" href="${meta.link}"` +
         ` class="flex-none rounded-full bg-gray-900 px-3.5 py-1 text-sm font-semibold text-white shadow-sm hover:bg-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900">` +
-        `${meta.linkMsg}`+
+        `${meta.linkMsg}` +
         //`<span style="margin-left: 5px;" aria-hidden="true">&rarr;</span>`+
         `</a>` +
         `</div></div>`
@@ -175,50 +182,48 @@ export class Notif {
         `<p class="mt-6 text-lg leading-8 text-gray-600">${meta.desc}</p>` +
         `<div class="mt-10 flex items-center justify-center gap-x-6">` +
         `<button id="fbhrr-goConfigure" class="rounded-md bg-${meta.colour}-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-${meta.colour}-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-${meta.colour}-600">` +
-        `${meta.btn}</button><a target="_blank" id="fbhrr-learnlink" href="${
-          meta.link ?? "javascript:;"
+        `${meta.btn}</button><a target="_blank" id="fbhrr-learnlink" href="${meta.link ?? "javascript:;"
         }"` +
         ` class="text-sm font-semibold leading-6 text-gray-900"> ${meta.linkMsg} <span aria-hidden="true">→</span></a>` +
         `</div></div>` +
         (meta.showLangs !== false
           ? `<div class="text-center">` +
-            `<div class="mt-10 flex items-center justify-center gap-x-6">` +
-            `<div class="mt-6 text-sm leading-6 text-gray-600 block">- Supported languages -</div>` +
-            `</div><div class="flex items-center justify-center gap-x-6">` +
-            `<div class="text-sm leading-6 text-gray-600 block" id="fbhrr-langs-list">${Object.keys(
-              langs
-            )
-              .map((x) => langs[x].name)
-              .join(
-                '<svg viewBox="0 0 2 2" class="mx-2 inline h-0.5 w-0.5 fill-current" aria-hidden="true"><circle cx="1" cy="1" r="1" /></svg>'
-              )}</div>` +
-            `</div></div>`
+          `<div class="mt-10 flex items-center justify-center gap-x-6">` +
+          `<div class="mt-6 text-sm leading-6 text-gray-600 block">- Supported languages -</div>` +
+          `</div><div class="flex items-center justify-center gap-x-6">` +
+          `<div class="text-sm leading-6 text-gray-600 block" id="fbhrr-langs-list">${Object.keys(
+            langs
+          )
+            .map((x) => langs[x].name)
+            .join(
+              '<svg viewBox="0 0 2 2" class="mx-2 inline h-0.5 w-0.5 fill-current" aria-hidden="true"><circle cx="1" cy="1" r="1" /></svg>'
+            )}</div>` +
+          `</div></div>`
           : "") +
         (meta.desc2 !== undefined
           ? `<div class="text-center"><div class="mt-10 flex items-center justify-center gap-x-6"></div>` +
-            `<div class="flex items-center justify-center gap-x-6">` +
-            `<div class="text-sm leading-6 text-gray-600 block" id="fbhrr-langs-list">${meta.desc2}</div>` +
-            `</div></div>`
+          `<div class="flex items-center justify-center gap-x-6">` +
+          `<div class="text-sm leading-6 text-gray-600 block" id="fbhrr-langs-list">${meta.desc2}</div>` +
+          `</div></div>`
           : "") +
         (meta.showChangelog === true && Logs.length > 0
           ? `<div class="text-center">` +
-            `<div class="mt-10 flex items-center justify-center gap-x-6">` +
-            `<div class="mt-6 text-sm leading-6 text-gray-600 block">- Changelog -</div>` +
-            `</div><div class="flex items-center justify-center gap-x-6" style="flex-direction: column;">` +
-            Logs.map(
-              (commit) => `
+          `<div class="mt-10 flex items-center justify-center gap-x-6">` +
+          `<div class="mt-6 text-sm leading-6 text-gray-600 block">- Changelog -</div>` +
+          `</div><div class="flex items-center justify-center gap-x-6" style="flex-direction: column;">` +
+          Logs.map(
+            (commit) => `
             <div class="mt-10">
-            ${
-              `v${storage.version}` == commit.tag
+            ${`v${storage.version}` == commit.tag
                 ? `<div class="flex-none rounded-full bg-${meta.notif.colour}-900 px-3.5 py-1 text-sm font-semibold text-white shadow-sm hover:bg-${meta.notif.colour}-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-${meta.notif.colour}-900">${commit.tag}</div>`
                 : `<div class="text-lg font-bold">${commit.tag}</div>`
-            }              
+              }              
               <div class="text-sm text-gray-600">${commit.date}</div>
               <div class="mt-2 text-sm">${commit.commits.join("<br/>")}</div>
             </div>
           `
-            ).join("") +
-            `</div></div>`
+          ).join("") +
+          `</div></div>`
           : "") +
         `</div></div>`
       );
@@ -243,10 +248,9 @@ export class Notif {
         `<p class="mt-1 text-sm leading-6 text-gray-600">${meta.desc}</p></div>`;
       for (let formIndex = 0; formIndex < meta.forms.length; formIndex++) {
         output +=
-          `<div class="mt-10 space-y-10 ${
-            formIndex < meta.forms.length - 1
-              ? "border-b border-gray-900/10 pb-12"
-              : ""
+          `<div class="mt-10 space-y-10 ${formIndex < meta.forms.length - 1
+            ? "border-b border-gray-900/10 pb-12"
+            : ""
           }"><fieldset>` +
           `<legend class="text-sm font-semibold leading-6 text-gray-900">${meta.forms[formIndex].title}</legend><div class="mt-6 space-y-6">`;
         for (let formField of meta.forms[formIndex].fields) {
@@ -254,12 +258,14 @@ export class Notif {
             output +=
               `<div class="relative flex gap-x-3">` +
               `<div class="flex h-6 items-center">` +
-              `<input type="checkbox" class="cb-green-600" id="fbhrr-${formField.id}" name="${formField.id}"` +
-              ` class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600">` +
+              `<label class="switch">` +
+              `<input type="checkbox" id="fbhrr-${formField.id}" name="${formField.id}">` +
+              `<span class="slider round"></span>` +
+              `</label>` +
               `</div><div class="text-sm leading-6">` +
               `<label for="reels" class="font-medium text-gray-900">${formField.title}<span id="fbhrr-${formField.id}-note"></span>` +
               (formField.addedInVersion !== undefined &&
-              isFieldNew(formField.addedInVersion)
+                isFieldNew(formField.addedInVersion)
                 ? `<div class="flex-none tag rounded-full bg-blue-500 px-3.5 py-1 font-semibold text-white shadow-sm">NEW IN v${formField.addedInVersion}</div>`
                 : "") +
               `</label>` +
