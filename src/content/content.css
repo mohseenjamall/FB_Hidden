@@ -52,12 +52,7 @@
   > div::before {
   height: 50px;
 }
-.redact-elem.redact-elem-cover:not(.redact-elem.complete-redact):not(
-    .redact-elem.redact-elem-fbhaar
-  ):hover
-  > div::before {
-  opacity: 0.8;
-}
+
 
 .redact-elem.redact-elem-fbhaar {
   height: 50px;
