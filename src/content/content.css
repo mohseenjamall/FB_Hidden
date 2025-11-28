@@ -5,29 +5,21 @@
 #fbversion-banner {
   height: 80px;
 }
+
 #fbversion-banner::before {
   background: var(--notification-badge);
 }
 
-.redact-elem:not(.redact-elem.complete-redact):not(
-    .redact-elem.redact-elem-fbhaar
-  ) {
+.redact-elem:not(.redact-elem.complete-redact):not(.redact-elem.redact-elem-fbhaar) {
   position: relative;
 }
-.redact-elem:not(.redact-elem.complete-redact):not(
-    .redact-elem.redact-elem-fbhaar
-  )
-  > div,
-.redact-elem:not(.redact-elem.complete-redact):not(
-    .redact-elem.redact-elem-fbhaar
-  )
-  > div::before {
+
+.redact-elem:not(.redact-elem.complete-redact):not(.redact-elem.redact-elem-fbhaar)>div,
+.redact-elem:not(.redact-elem.complete-redact):not(.redact-elem.redact-elem-fbhaar)>div::before {
   transition: all 0.5s ease;
 }
-.redact-elem:not(.redact-elem.complete-redact):not(
-    .redact-elem.redact-elem-fbhaar
-  )
-  > div::before {
+
+.redact-elem:not(.redact-elem.complete-redact):not(.redact-elem.redact-elem-fbhaar)>div::before {
   content: "Was something before" attr(redact-comment);
   border-top: 0px solid var(--secondary-text);
   position: absolute;
@@ -35,8 +27,8 @@
   left: 0;
   width: 100%;
   height: 100%;
-  color: var(--secondary-text);
-  background: var(--surface-background);
+  color: #6b7280;
+  background: rgba(249, 250, 251, 0.95);
   font-family: var(--font-family-default);
   border-radius: var(--card-corner-radius);
   z-index: 2;
@@ -46,10 +38,8 @@
   justify-content: center;
   align-items: center;
 }
-.redact-elem:not(.redact-elem-cover):not(.redact-elem.complete-redact):not(
-    .redact-elem.redact-elem-fbhaar
-  )
-  > div::before {
+
+.redact-elem:not(.redact-elem-cover):not(.redact-elem.complete-redact):not(.redact-elem.redact-elem-fbhaar)>div::before {
   height: 50px;
 }
 
@@ -57,6 +47,7 @@
 .redact-elem.redact-elem-fbhaar {
   height: 50px;
 }
+
 .redact-elem.redact-elem-fbhaar::before {
   display: block;
   position: absolute;
@@ -77,21 +68,23 @@
 #fbcont-banner[fbtxt]::before {
   content: attr(fbtxt);
 }
-.redact-elem.redact-elem-fbhaar[fbtxt] > div::before {
+
+.redact-elem.redact-elem-fbhaar[fbtxt]>div::before {
   content: attr(fbtxt);
 }
-.redact-elem > div[ctext]::before {
+
+.redact-elem>div[ctext]::before {
   content: attr(ctext) !important;
 }
 
-.redact-elem.can-show > div[ctext]::before {
-  content: "\02C5"" " attr(ctext) !important;
+.redact-elem.can-show>div[ctext]::before {
+  content: "\02C5" " " attr(ctext) !important;
 }
 
 /*div[aria-label="Stories"] {
   display: none !important;
 }*/
-#stories-container > div.stories {
+#stories-container>div.stories {
   display: none !important;
 }
 
@@ -100,10 +93,12 @@
   margin-bottom: 20px;
   overflow: hidden;
 }
-.redact-elem.temp-show > div {
+
+.redact-elem.temp-show>div {
   margin-bottom: 50px;
 }
-.redact-elem.temp-show > div::before {
+
+.redact-elem.temp-show>div::before {
   width: calc(100% - 20px) !important;
   border-top: 1px solid var(--secondary-text) !important;
   border-top-right-radius: 0 !important;
@@ -112,8 +107,9 @@
   height: 20px !important;
   padding: 10px !important;
 }
-.redact-elem.temp-show > div[ctext]::before {
-  content: "\02C4"" " attr(ctext) !important;
+
+.redact-elem.temp-show>div[ctext]::before {
+  content: "\02C4" " " attr(ctext) !important;
 }
 
 /* div[role="main"] > div {

@@ -163,7 +163,7 @@ export class SmartStorageTypeDefaults {
       stories: true,
       clickToShow: true,
       createPost: true,
-      hideBlocks: true,
+      hideBlocks: false,
       games: true,
       fullPageLoader: false,
       contentCovers: true
