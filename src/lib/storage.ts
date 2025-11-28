@@ -166,7 +166,7 @@ export class SmartStorageTypeDefaults {
       hideBlocks: false,
       games: true,                   // Hide games
       fullPageLoader: false,
-      contentCovers: true
+      contentCovers: false           // No covers, hide directly
     };
   }
 }
