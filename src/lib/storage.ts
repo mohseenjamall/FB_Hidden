@@ -151,20 +151,20 @@ export class SmartStorageTypeDefaults {
     return {
       version: "0.0.0",
       needsDelay: false,
-      friendRequests: true,
-      reels: true,
-      containsReels: true,
-      suggestions: true,
-      tagged: true,
-      commentedOn: true,
-      commentedOnFriend: true,
-      answeredQuestion: true,
-      peopleMayKnow: true,
-      stories: true,
+      friendRequests: false,        // Show friend requests
+      reels: true,                   // Hide reels blocks
+      containsReels: true,           // Hide shared reels
+      suggestions: true,             // Hide all suggestions
+      tagged: false,                 // Show tagged posts
+      commentedOn: false,            // Show friend comments on pages
+      commentedOnFriend: false,      // Show friend comments
+      answeredQuestion: false,       // Show answered questions
+      peopleMayKnow: false,          // Show people you may know
+      stories: true,                 // Hide stories
       clickToShow: true,
-      createPost: true,
+      createPost: false,             // Show create post box
       hideBlocks: false,
-      games: true,
+      games: true,                   // Hide games
       fullPageLoader: false,
       contentCovers: true
     };
