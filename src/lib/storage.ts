@@ -118,7 +118,7 @@ export class Storage {
   }
 }
 
-export interface ConfigBase {}
+export interface ConfigBase { }
 export interface ConfigDefition extends ConfigBase {
   version: string;
   needsDelay: boolean;
@@ -163,7 +163,7 @@ export class SmartStorageTypeDefaults {
       stories: true,
       clickToShow: true,
       createPost: true,
-      hideBlocks: false,
+      hideBlocks: true,
       games: true,
       fullPageLoader: false,
       contentCovers: true
