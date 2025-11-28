@@ -808,7 +808,8 @@ const contentCleaner = (
 
     if (ccDebounceTimer !== null) clearTimeout(ccDebounceTimer);
     if (document.getElementById("stories-container") === null) {
-      let storiesDoc = document.querySelectorAll('div[aria-label="Stories"]');
+      // Try multiple language variations for Stories
+      let storiesDoc = document.querySelectorAll('div[aria-label="Stories"], div[aria-label="قصص"], div[aria-label="Historias"], div[aria-label="Histoires"]');
       if (storiesDoc.length > 0) {
         let hiracDiv = storiesDoc[0].parentElement!;
         let max = 30;
