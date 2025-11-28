@@ -808,8 +808,12 @@ const contentCleaner = (
 
     if (ccDebounceTimer !== null) clearTimeout(ccDebounceTimer);
     if (document.getElementById("stories-container") === null) {
-      // Try multiple language variations for Stories
+      // Try multiple approaches to find stories container
+      let storyContainerFound = false;
+
+      // Approach 1: Try old method with aria-label on container
       let storiesDoc = document.querySelectorAll('div[aria-label="Stories"], div[aria-label="قصص"], div[aria-label="Historias"], div[aria-label="Histoires"]');
+
       if (storiesDoc.length > 0) {
         let hiracDiv = storiesDoc[0].parentElement!;
         let max = 30;
@@ -819,6 +823,30 @@ const contentCleaner = (
           if (max <= 0) return;
         }
         hiracDiv.setAttribute("id", "stories-container");
+        storyContainerFound = true;
+        consoleLog.log("Found stories container using aria-label on container");
+      } else {
+        // Approach 2: Look for individual story links (for Arabic and other languages)
+        const storyLinks = document.querySelectorAll('a[aria-label*="قصة"], a[aria-label*="Story"], a[aria-label*="إنشاء قصة"]');
+
+        if (storyLinks.length > 0) {
+          // Find the common parent container
+          let parent = storyLinks[0].parentElement;
+          let attempts = 0;
+          while (parent && attempts < 15) {
+            // Look for a parent that contains multiple story links
+            const childStories = parent.querySelectorAll('a[aria-label*="قصة"], a[aria-label*="Story"], a[aria-label*="إنشاء قصة"]');
+            if (childStories.length >= 2) {
+              // Found a container with multiple stories
+              parent.setAttribute("id", "stories-container");
+              storyContainerFound = true;
+              consoleLog.log(`Found stories container with ${childStories.length} stories (Arabic/multi-language)`);
+              break;
+            }
+            parent = parent.parentElement;
+            attempts++;
+          }
+        }
       }
 
       // Only process stories if container was found
