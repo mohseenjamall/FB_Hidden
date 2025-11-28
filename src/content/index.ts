@@ -820,21 +820,25 @@ const contentCleaner = (
         }
         hiracDiv.setAttribute("id", "stories-container");
       }
-      if (config.stories !== false) {
-        let storiesDoc2 = document.getElementById("stories-container")!;
-        for (let childH of storiesDoc2.children) {
+
+      // Only process stories if container was found
+      let storiesContainer = document.getElementById("stories-container");
+      if (storiesContainer && config.stories !== false) {
+        for (let childH of storiesContainer.children) {
           if (childH.getAttribute("id") === "fbcont-banner") continue;
           childH.classList.add("stories");
         }
       }
-      if (document.getElementById("fbcont-banner") === null) {
-        document.getElementById("stories-container")!.innerHTML =
+
+      // Add banner only if stories container exists and banner doesn't exist yet
+      if (storiesContainer && document.getElementById("fbcont-banner") === null) {
+        storiesContainer.innerHTML =
           '<div id="fbcont-banner" class="redact-elem redact-elem-fbhaar" fbver="' +
           storage.version +
           '" fbtxt="Facebook Hide Recommendations and Reels v' +
           storage.version +
           '"></div>' +
-          document.getElementById("stories-container")!.innerHTML;
+          storiesContainer.innerHTML;
       }
     }
     if (
