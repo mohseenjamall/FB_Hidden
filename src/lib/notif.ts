@@ -11,43 +11,10 @@ const storage = new Storage();
 export class Notif {
   public static async DefaultPopupConfig(): Promise<SystemConfigSystem> {
     await storage.setup();
+    // Always use English for plugin UI (language detection removed)
     let sysConfig: SystemConfigSystem = JSON.parse(
       JSON.stringify(langs.en._system)
     ) as SystemConfigSystem;
-
-    if (
-      (window.localStorage.getItem("fbhrar_locale") ??
-        document.documentElement.lang) !== "en"
-    ) {
-      if (
-        (langs as any)[
-        window.localStorage.getItem("fbhrar_locale") ??
-        document.documentElement.lang
-        ] !== undefined &&
-        (langs as any)[
-          window.localStorage.getItem("fbhrar_locale") ??
-          document.documentElement.lang
-        ]._system !== undefined
-      ) {
-        for (let key of Object.keys(langs.en._system!)) {
-          if (
-            (langs as any)[
-              window.localStorage.getItem("fbhrar_locale") ??
-              document.documentElement.lang
-            ]._system[key] !== undefined
-          ) {
-            (sysConfig as any)[key] = JSON.parse(
-              JSON.stringify(
-                (langs as any)[
-                  window.localStorage.getItem("fbhrar_locale") ??
-                  document.documentElement.lang
-                ]._system[key]
-              )
-            );
-          }
-        }
-      }
-    }
     return sysConfig;
   }
   public static async generate(layoutpart: string, meta: any = {}) {
