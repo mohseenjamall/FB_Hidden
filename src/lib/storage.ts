@@ -154,7 +154,7 @@ export class SmartStorageTypeDefaults {
       friendRequests: false,        // Show friend requests
       reels: true,                   // Hide reels blocks
       containsReels: true,           // Hide shared reels
-      suggestions: true,             // Hide all suggestions
+      suggestions: false,            // Show all suggestions
       tagged: false,                 // Show tagged posts
       commentedOn: false,            // Show friend comments on pages
       commentedOnFriend: false,      // Show friend comments
