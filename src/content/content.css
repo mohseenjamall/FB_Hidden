@@ -81,10 +81,8 @@
   content: "\02C5" " " attr(ctext) !important;
 }
 
-/*div[aria-label="Stories"] {
-  display: none !important;
-}*/
-#stories-container>div.stories {
+/* Hide stories container completely to remove empty space */
+#stories-container {
   display: none !important;
 }
 
@@ -111,36 +109,3 @@
 .redact-elem.temp-show>div[ctext]::before {
   content: "\02C4" " " attr(ctext) !important;
 }
-
-/* div[role="main"] > div {
-  transition: all 0.5s ease;
-  opacity: 0;
-}
-div[role="main"][visible="show"] > div {
-  opacity: 1;
-}
-
-div[role="main"]:not([visible="show"]) {
-  position: relative;
-  min-height: 100vh;
-}
-div[role="main"]:not([visible="show"])::before {
-  top: 150px;
-  z-index: 100;
-  content: "";
-  position: absolute;
-  left: 50%;
-  width: 50px;
-  height: 50px;
-  margin: -25px 0 0 -25px;
-  border: 4px solid transparent;
-  border-top-color: #3498db;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-} */
