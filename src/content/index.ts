@@ -43,10 +43,8 @@ const consoleLog = {
 const LANGS = () => JSON.parse(JSON.stringify(langs));
 
 let forceReloadRequested = false;
-let asLang =
-  window.localStorage.getItem("fbhrar_locale") ??
-  document.documentElement.lang ??
-  "en";
+// Force English for plugin content labels
+let asLang = "en";
 let parsedLang: (LangType & LangText) | undefined = LANGS()[asLang];
 const setLANG = (lang: string) => {
   asLang = lang;
